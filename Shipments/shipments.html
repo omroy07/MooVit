@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>📦 MooVit – Transport Dashboard</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    header {
+      background: #0d6efd;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: .5rem;
+      text-align: center;
+    }
+
+    .actions {
+      visibility: hidden;
+    }
+
+    tr:hover .actions {
+      visibility: visible;
+    }
+
+    #map {
+      height: 350px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="p-3 d-flex justify-content-between">
+    <h5>📦 MooVit Transport Management</h5>
+    <a href="../main.html" class="btn btn-light">← Home</a>
+  </header>
+
+  <main class="container my-4">
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-2 stat-card">
+        <h6>Total</h6>
+        <h3 id="statTotal">0</h3>
+      </div>
+      <div class="col-md-2 stat-card">
+        <h6>Pending</h6>
+        <h3 id="statPending">0</h3>
+      </div>
+      <div class="col-md-2 stat-card">
+        <h6>Delayed</h6>
+        <h3 id="statDelayed">0</h3>
+      </div>
+      <div class="col-md-2 stat-card">
+        <h6>Cancelled</h6>
+        <h3 id="statCancelled">0</h3>
+      </div>
+      <div class="col-md-4 stat-card bg-success text-white">
+        <h6>Total Revenue</h6>
+        <h3>₹ <span id="totalRevenue">0</span></h3>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-body">
+            <h5>📊 Revenue by Service</h5>
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5>📈 Revenue Distribution</h5>
+            <canvas id="pieChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5>🗺️ Pickup & Drop Location</h5>
+        <p class="text-muted">Click once for Pickup, second click for Drop</p>
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="card-body">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Service</th>
+              <th>Status</th>
+              <th>City</th>
+              <th>Qty</th>
+              <th>Weight (kg)</th>
+              <th>Price ₹</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+
+        <div id="empty" class="text-center text-muted py-3">No shipments yet</div>
+        <button id="addBtn" class="btn btn-primary">+ Add Shipment</button>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="text-center bg-light py-2">
+    © 2025 MooVit Transport Services
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal fade" id="modal">
+    <div class="modal-dialog">
+      <form class="modal-content">
+        <div class="modal-header">
+          <h5>Add Shipment</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+
+          <!-- Shipment ID -->
+          <label class="form-label">Shipment ID</label>
+          <input id="shipId" class="form-control mb-2" placeholder="e.g. SHP1023" required>
+
+          <!-- Service Type -->
+          <label class="form-label">Service Type</label>
+          <select id="shipService" class="form-select mb-2" required>
+            <option disabled selected>Select Service</option>
+            <option>Home Shifting</option>
+            <option>Within City Delivery</option>
+            <option>Inter City Delivery</option>
+          </select>
+
+          <!-- Status -->
+          <label class="form-label">Shipment Status</label>
+          <select id="shipStatus" class="form-select mb-2" required>
+            <option disabled selected>Select Status</option>
+            <option>Pending</option>
+            <option>Delayed</option>
+            <option>Cancelled</option>
+          </select>
+
+          <!-- City -->
+          <label class="form-label">City / Depot</label>
+          <input id="shipCity" class="form-control mb-2" placeholder="e.g. Bangalore" required>
+
+          <!-- Quantity -->
+          <label class="form-label">
+            Quantity <small class="text-muted">(Number of items)</small>
+          </label>
+          <input id="shipQty" type="number" class="form-control mb-2" value="1" min="1" required>
+
+          <!-- Weight -->
+          <label class="form-label">
+            Total Weight <small class="text-muted">(in kg)</small>
+          </label>
+          <input id="shipWeight" type="number" class="form-control" value="1" min="1" step="0.5" required>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-success">Save Shipment</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const modal = new bootstrap.Modal(document.getElementById('modal'));
+    const tbody = document.getElementById('tbody');
+
+    let revenue = 0;
+    let revenueByService = {
+      "Home Shifting": 0,
+      "Within City Delivery": 0,
+      "Inter City Delivery": 0
+    };
+
+    /* MAP */
+    const map = L.map('map').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    let pickup = null, drop = null, route = null;
+    map.on('click', e => {
+      if (!pickup) pickup = L.marker(e.latlng).addTo(map).bindPopup("Pickup").openPopup();
+      else if (!drop) {
+        drop = L.marker(e.latlng).addTo(map).bindPopup("Drop").openPopup();
+        route = L.polyline([pickup.getLatLng(), drop.getLatLng()], { color: 'blue' }).addTo(map);
+      } else {
+        map.removeLayer(pickup); map.removeLayer(drop); map.removeLayer(route);
+        pickup = drop = route = null;
+      }
+    });
+
+    /* PRICE */
+    function calculatePrice(service, qty, weight, status) {
+      let base = 0, perItem = 0, perKg = 0;
+      if (service === "Home Shifting") { base = 5000; perItem = 300; perKg = 50; }
+      if (service === "Within City Delivery") { base = 50; perItem = 20; perKg = 10; }
+      if (service === "Inter City Delivery") { base = 2000; perItem = 150; perKg = 30; }
+      let price = base + (qty * perItem) + (weight * perKg);
+      if (status === "Delayed") price *= 1.1;
+      if (status === "Cancelled") price = 0;
+      return Math.round(price);
+    }
+
+    /* CHARTS */
+    const barChart = new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(revenueByService),
+        datasets: [{ label: 'Revenue (₹)', data: Object.values(revenueByService) }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+
+    const pieChart = new Chart(document.getElementById('pieChart'), {
+      type: 'pie',
+      data: {
+        labels: Object.keys(revenueByService),
+        datasets: [{ data: Object.values(revenueByService) }]
+      }
+    });
+
+    function updateCharts() {
+      barChart.data.datasets[0].data = Object.values(revenueByService);
+      pieChart.data.datasets[0].data = Object.values(revenueByService);
+      barChart.update(); pieChart.update();
+    }
+
+    /* FORM */
+    addBtn.onclick = () => { document.querySelector('form').reset(); modal.show(); };
+
+    document.querySelector('form').onsubmit = e => {
+      e.preventDefault();
+      const price = calculatePrice(shipService.value, +shipQty.value, +shipWeight.value, shipStatus.value);
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+<td>${shipId.value}</td>
+<td class="service">${shipService.value}</td>
+<td class="status">${shipStatus.value}</td>
+<td>${shipCity.value}</td>
+<td>${shipQty.value}</td>
+<td>${shipWeight.value}</td>
+<td class="price">${price}</td>
+<td class="actions">
+<button class="btn btn-sm btn-success done">Complete</button>
+<button class="btn btn-sm btn-danger del">Delete</button>
+</td>`;
+
+      tbody.append(row);
+
+      row.querySelector('.done').onclick = () => {
+        row.querySelector('.status').textContent = "Completed";
+        revenue += price;
+        revenueByService[shipService.value] += price;
+        update();
+      };
+
+      row.querySelector('.del').onclick = () => {
+        if (row.querySelector('.status').textContent === "Completed") {
+          revenue -= price;
+          revenueByService[row.querySelector('.service').textContent] -= price;
+        }
+        row.remove(); update();
+      };
+
+      modal.hide(); update();
+    };
+
+    function update() {
+      const rows = [...tbody.rows];
+      let p = 0, d = 0, c = 0;
+      rows.forEach(r => {
+        const s = r.querySelector('.status').textContent;
+        if (s === "Pending") p++;
+        if (s === "Delayed") d++;
+        if (s === "Cancelled") c++;
+      });
+      statTotal.textContent = rows.length;
+      statPending.textContent = p;
+      statDelayed.textContent = d;
+      statCancelled.textContent = c;
+      totalRevenue.textContent = revenue;
+      updateCharts();
+    }
+  </script>
+
+</body>
+
+</html>

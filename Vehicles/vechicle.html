@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>🚛 MooVit – Smart Fleet Dashboard</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background: #f4f6f9;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    header {
+      background: #0d6efd;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .card {
+      border-radius: 14px;
+    }
+
+    .rating {
+      color: #f1c40f;
+      font-weight: 600;
+    }
+
+    .score.good {
+      color: #198754;
+    }
+
+    .score.avg {
+      color: #ffc107;
+    }
+
+    .score.bad {
+      color: #dc3545;
+    }
+
+    #map {
+      height: 360px;
+      border-radius: 14px;
+    }
+
+    .actions {
+      visibility: hidden;
+    }
+
+    tr:hover .actions {
+      visibility: visible;
+    }
+
+    .badge {
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="p-3 d-flex justify-content-between align-items-center">
+    <h4 class="mb-0">🚛 MooVit – Fleet Intelligence</h4>
+    <button class="btn btn-light" onclick="openTripModal()">+ Start Trip</button>
+  </header>
+
+  <main class="container my-4">
+
+    <!-- ANALYTICS -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card p-3 text-center">
+          <h6>Active Trips</h6>
+          <h3 id="activeTrips">0</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3 text-center">
+          <h6>Completed Trips</h6>
+          <h3 id="completedTrips">0</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3 text-center">
+          <h6>🏆 Best Driver</h6>
+          <h4 id="bestDriver">—</h4>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3 text-center">
+          <h6>Avg Rating</h6>
+          <h3 id="avgRating">0</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div class="card p-3 mb-4">
+      <h5>🗺 Live Route & Stopages</h5>
+      <div id="map"></div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card p-3">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Vehicle</th>
+            <th>Driver</th>
+            <th>Route</th>
+            <th>AI Delay Risk</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- CHART -->
+    <div class="card p-3 mt-4">
+      <h5>📊 Driver Performance Analytics</h5>
+      <canvas id="perfChart" height="110"></canvas>
+    </div>
+
+  </main>
+
+  <!-- START TRIP MODAL -->
+  <div class="modal fade" id="tripModal">
+    <div class="modal-dialog">
+      <form class="modal-content">
+        <div class="modal-header">
+          <h5>Start New Trip</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <input id="vehId" class="form-control mb-2" placeholder="Vehicle ID" required>
+          <input id="driver" class="form-control mb-2" placeholder="Driver Name" required>
+          <input id="from" class="form-control mb-2" placeholder="From City" required>
+          <input id="to" class="form-control mb-2" placeholder="To City" required>
+          <input id="stop" class="form-control mb-2" placeholder="Add Stopage (optional)">
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-success" type="submit">Start Trip</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FEEDBACK MODAL -->
+  <div class="modal fade" id="feedbackModal">
+    <div class="modal-dialog">
+      <form class="modal-content">
+        <div class="modal-header">
+          <h5>Trip Feedback</h5>
+        </div>
+
+        <div class="modal-body">
+          <select id="finalRating" class="form-select mb-2">
+            <option value="5">★★★★★ Excellent</option>
+            <option value="4">★★★★☆ Good</option>
+            <option value="3">★★★☆☆ Average</option>
+            <option value="2">★★☆☆☆ Poor</option>
+          </select>
+          <textarea id="feedback" class="form-control" placeholder="Feedback"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let map, directionsService, directionsRenderer;
+    let active = 0, completed = 0, totalRating = 0;
+    let selectedRow = null;
+    const drivers = {};
+
+    const perfChart = new Chart(document.getElementById('perfChart'), {
+      type: 'bar',
+      data: { labels: ['Low', 'Average', 'High'], datasets: [{ data: [0, 0, 0] }] },
+      options: { plugins: { legend: { display: false } } }
+    });
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), { center: { lat: 20.59, lng: 78.96 }, zoom: 5 });
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer({ map });
+    }
+    initMap();
+
+    const tripModal = new bootstrap.Modal(document.getElementById('tripModal'));
+    const feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+
+    function openTripModal() { document.querySelector('#tripModal form').reset(); tripModal.show(); }
+
+    /* 🧠 AI Delay Prediction */
+    function predictDelay(distance, stops, rating) {
+      let d = 0;
+      if (distance > 200) d += 20;
+      if (distance > 400) d += 20;
+      d += stops * 10;
+      if (rating <= 3) d += 25;
+      else if (rating == 4) d += 10;
+      const h = new Date().getHours();
+      if (h >= 8 && h <= 11) d += 15;
+      if (h >= 17 && h <= 20) d += 20;
+      return Math.min(d, 90);
+    }
+
+    document.querySelector('#tripModal form').onsubmit = e => {
+      e.preventDefault();
+
+      active++;
+      activeTrips.textContent = active;
+
+      const distance = Math.floor(Math.random() * 500) + 50;
+      const delay = predictDelay(distance, stop.value ? 1 : 0, 4);
+      const badge = delay > 60 ? 'danger' : delay > 35 ? 'warning' : 'success';
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+<td>${vehId.value}</td>
+<td>${driver.value}</td>
+<td>${from.value} → ${to.value}</td>
+<td><span class="badge bg-${badge}">${delay}% Risk</span></td>
+<td>In Transit</td>
+<td class="score avg">--</td>
+<td class="actions">
+<button class="btn btn-sm btn-info mapBtn">Route</button>
+<button class="btn btn-sm btn-success stopBtn">Add Stop</button>
+<button class="btn btn-sm btn-warning doneBtn">Complete</button>
+</td>`;
+      tbody.append(row);
+
+      row.querySelector('.mapBtn').onclick = () => drawRoute(from.value, to.value, stop.value);
+      row.querySelector('.stopBtn').onclick = () => addStop(row);
+      row.querySelector('.doneBtn').onclick = () => completeTrip(row);
+
+      tripModal.hide();
+    };
+
+    function drawRoute(start, end, stop) {
+      const wp = stop ? [{ location: stop, stopover: true }] : [];
+      directionsService.route({ origin: start, destination: end, waypoints: wp, travelMode: 'DRIVING' },
+        (r, s) => { if (s === 'OK') directionsRenderer.setDirections(r); });
+    }
+
+    function addStop(row) {
+      const s = prompt("Enter stopage:");
+      if (!s) return;
+      drawRoute(row.cells[2].textContent.split(' → ')[0], row.cells[2].textContent.split(' → ')[1], s);
+    }
+
+    function completeTrip(row) {
+      selectedRow = row;
+      feedbackModal.show();
+    }
+
+    document.querySelector('#feedbackModal form').onsubmit = e => {
+      e.preventDefault();
+      const rating = parseInt(finalRating.value);
+      const score = rating * 20;
+      const name = selectedRow.cells[1].textContent;
+
+      selectedRow.cells[4].textContent = 'Completed';
+      selectedRow.cells[5].innerHTML = `<span class="score good">${score}%</span>`;
+      selectedRow.querySelector('.actions').innerHTML = '✔';
+
+      active--; completed++;
+      totalRating += rating;
+
+      drivers[name] ??= { ratingSum: 0, trips: 0, onTime: 0 };
+      drivers[name].ratingSum += rating;
+      drivers[name].trips++;
+      drivers[name].onTime++;
+
+      updateAnalytics();
+      feedbackModal.hide();
+    };
+
+    function updateAnalytics() {
+      activeTrips.textContent = active;
+      completedTrips.textContent = completed;
+      avgRating.textContent = (totalRating / completed || 0).toFixed(1);
+
+      let best = null, max = 0;
+      for (let n in drivers) {
+        const d = drivers[n];
+        const avg = d.ratingSum / d.trips;
+        const score = (avg * 40) + (d.trips * 30) + (d.onTime * 30);
+        if (score > max) { max = score; best = n; }
+      }
+      bestDriver.textContent = best || '—';
+
+      perfChart.data.datasets[0].data = [completed * 0.2, completed * 0.3, completed * 0.5];
+      perfChart.update();
+    }
+  </script>
+
+</body>
+
+</html>
