@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | MooVit</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --accent: #38bdf8;
+      --dark: #020617;
+      --glass: rgba(12, 18, 35, 0.9);
+      --border: rgba(255, 255, 255, 0.12);
+      --muted: #9ca3af;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(56, 189, 248, 0.15), transparent 40%),
+        radial-gradient(circle at bottom, rgba(56, 189, 248, 0.1), transparent 50%),
+        var(--dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #e5e7eb;
+    }
+
+    /* ================= CARD ================= */
+    .auth-container {
+      width: 360px;
+      padding: 2.8rem;
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
+        var(--glass);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      box-shadow:
+        0 0 80px rgba(56, 189, 248, 0.25),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      animation: float 6s ease-in-out infinite;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .auth-container:hover {
+      transform: translateY(-6px);
+      box-shadow:
+        0 0 110px rgba(56, 189, 248, 0.35),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-6px);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    /* ================= HEADER ================= */
+    .auth-container h2 {
+      text-align: center;
+      font-size: 1.9rem;
+      margin-bottom: 1.8rem;
+      background: linear-gradient(to right, #7dd3fc, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ================= INPUTS ================= */
+    label {
+      display: block;
+      margin-bottom: 1.2rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    input {
+      width: 100%;
+      margin-top: 6px;
+      padding: 0.7rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      color: white;
+      outline: none;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+    }
+
+    input::placeholder {
+      color: var(--muted);
+    }
+
+    /* ================= BUTTON ================= */
+    button {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: var(--accent);
+      color: black;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.45);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.5), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    button:hover::after {
+      opacity: 1;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    /* ================= FOOTER ================= */
+    p {
+      margin-top: 1.4rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="auth-container">
+    <form id="login-form">
+      <h2>Login to MooVit</h2>
+
+      <label>
+        Email
+        <input type="email" name="email" placeholder="you@example.com" required>
+      </label>
+
+      <label>
+        Password
+        <input type="password" name="password" placeholder="••••••••" required>
+      </label>
+
+      <button type="submit" onclick="window.location.href='main.html'">Login</button>
+
+      <p>
+        New to MooVit?
+        <a href="register.html">Create an account</a>
+      </p>
+    </form>
+  </div>
+
+</body>
+
+</html>

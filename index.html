@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MooVit | Smart Logistics Platform</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --accent: #38bdf8;
+      --dark: #020617;
+      --glass: rgba(12, 18, 35, 0.88);
+      --border: rgba(255, 255, 255, 0.12);
+      --muted: #9ca3af;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.12), transparent 40%),
+        radial-gradient(circle at bottom, rgba(56, 189, 248, 0.08), transparent 50%),
+        var(--dark);
+      color: #e5e7eb;
+      overflow-x: hidden;
+    }
+
+    /* ================= NAVBAR ================= */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2.5rem;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(to bottom,
+          rgba(2, 6, 23, 0.95),
+          rgba(2, 6, 23, 0.75));
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 1.55rem;
+      font-weight: 600;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    nav a {
+      margin: 0 1rem;
+      text-decoration: none;
+      color: #d1d5db;
+      position: relative;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -6px;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--accent), transparent);
+      transform: translateX(-50%);
+      transition: width 0.35s ease;
+    }
+
+    nav a:hover::after {
+      width: 120%;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .search {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .search input {
+      background: transparent;
+      border: none;
+      padding: 0.45rem 0.7rem;
+      color: white;
+      outline: none;
+      width: 160px;
+    }
+
+    .search input::placeholder {
+      color: var(--muted);
+    }
+
+    .search button {
+      background: var(--accent);
+      border: none;
+      padding: 0.45rem 0.8rem;
+      cursor: pointer;
+      color: black;
+      font-weight: 600;
+    }
+
+    .btn {
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      color: black;
+      border: none;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn.primary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn.primary:hover::after {
+      opacity: 1;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ================= HERO ================= */
+    .hero {
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 2rem;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    .hero-card {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
+        var(--glass);
+      backdrop-filter: blur(15px);
+      border-radius: 22px;
+      padding: 3.5rem;
+      max-width: 900px;
+      text-align: center;
+      box-shadow:
+        0 0 120px rgba(56, 189, 248, 0.25),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      animation: float 6s ease-in-out infinite;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      z-index: 10;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow:
+        0 0 140px rgba(56, 189, 248, 0.35),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-card h1 {
+      font-size: 2.8rem;
+      font-weight: 600;
+      line-height: 1.2;
+      background: linear-gradient(to right, #7dd3fc, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-card p {
+      margin-top: 1.2rem;
+      font-size: 1.08rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .hero-card b {
+      color: #fff;
+    }
+
+    /* ================= GRID FLOOR ================= */
+    @keyframes gridMove {
+      from {
+        background-position: 0 0, 0 0, 0 0;
+      }
+
+      to {
+        background-position: 0 0, 0 40px, 40px 0;
+      }
+    }
+
+    .grid {
+      position: absolute;
+      bottom: -200px;
+      width: 120%;
+      height: 480px;
+      background:
+        linear-gradient(to top, rgba(2, 6, 23, 0.95), transparent 60%),
+        repeating-linear-gradient(0deg,
+          transparent,
+          transparent 22px,
+          rgba(56, 189, 248, 0.25) 23px),
+        repeating-linear-gradient(90deg,
+          transparent,
+          transparent 22px,
+          rgba(56, 189, 248, 0.25) 23px);
+      transform: perspective(1000px) rotateX(65deg);
+      opacity: 0.75;
+      animation: gridMove 20s linear infinite;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        display: none;
+      }
+
+      .hero-card h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <header>
+    <div class="logo">🚚 MooVit</div>
+
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="Shipments/shipments.html">Shipments</a>
+      <a href="#">Services</a>
+      <a href="#">Contact</a>
+    </nav>
+
+    <div class="nav-right">
+      <div class="search">
+        <input type="text" placeholder="Track shipment..." />
+        <button>🔍</button>
+      </div>
+      <button class="btn" onclick="window.location.href='login.html'">Login</button>
+      <button class="btn primary" onclick="window.location.href='register.html'">Register</button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-card">
+      <h1>Moving Logistics Through Technology</h1>
+      <p>
+        <b>MooVit</b> connects <b>Shippers, Transporters, Fleet Owners</b> and
+        <b>Businesses</b> to deliver fast, transparent, and intelligent logistics
+        solutions through real-time tracking and smart routing.
+      </p>
+    </div>
+
+    <div class="grid"></div>
+  </section>
+
+  <!-- Mouse-follow glow -->
+  <script>
+    const hero = document.querySelector('.hero');
+    hero.addEventListener('mousemove', (e) => {
+      const x = e.clientX / window.innerWidth * 100;
+      const y = e.clientY / window.innerHeight * 100;
+      hero.style.background = `
+        radial-gradient(circle at ${x}% ${y}%,
+        rgba(56,189,248,0.12),
+        transparent 40%),
+        #020617
+      `;
+    });
+  </script>
+
+</body>
+
+</html>
