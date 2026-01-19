@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhopal Restaurant Finder - Real-time Details & Reviews</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    
+    <!-- Leaflet MarkerCluster CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <h1><i class="fas fa-utensils"></i> Bhopal Restaurant Finder</h1>
+        <p>Discover the best restaurants in Bhopal with real-time crowd data, ratings, and dining discounts</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <h2><i class="fas fa-filter"></i> Filter Restaurants</h2>
+            
+            <div class="filter-grid">
+                <!-- Search -->
+                <div class="filter-group">
+                    <label><i class="fas fa-search"></i> Search</label>
+                    <input type="text" id="searchInput" placeholder="Search by name, cuisine, area...">
+                </div>
+
+                <!-- Cuisine Type -->
+                <div class="filter-group">
+                    <label><i class="fas fa-pizza-slice"></i> Cuisine</label>
+                    <select id="cuisineFilter">
+                        <option value="all">All Cuisines</option>
+                        <option value="north-indian">North Indian</option>
+                        <option value="mughlai">Mughlai</option>
+                        <option value="continental">Continental</option>
+                        <option value="chinese">Chinese</option>
+                        <option value="italian">Italian</option>
+                        <option value="south-indian">South Indian</option>
+                        <option value="biryani">Biryani</option>
+                        <option value="vegetarian">Pure Vegetarian</option>
+                    </select>
+                </div>
+
+                <!-- Rating Filter -->
+                <div class="filter-group">
+                    <label><i class="fas fa-star"></i> Min Rating</label>
+                    <select id="ratingFilter">
+                        <option value="0">All Ratings</option>
+                        <option value="4.5">4.5+ Stars</option>
+                        <option value="4.0">4.0+ Stars</option>
+                        <option value="3.5">3.5+ Stars</option>
+                    </select>
+                </div>
+
+                <!-- Price Filter -->
+                <div class="filter-group">
+                    <label><i class="fas fa-rupee-sign"></i> Price Range</label>
+                    <select id="priceFilter">
+                        <option value="all">All Prices</option>
+                        <option value="1">₹ (Budget)</option>
+                        <option value="2">₹₹ (Moderate)</option>
+                        <option value="3">₹₹₹ (Expensive)</option>
+                        <option value="4">₹₹₹₹ (Fine Dining)</option>
+                    </select>
+                </div>
+
+                <!-- Distance Filter -->
+                <div class="filter-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Distance</label>
+                    <select id="distanceFilter">
+                        <option value="all">Any Distance</option>
+                        <option value="2">Within 2 km</option>
+                        <option value="5">Within 5 km</option>
+                        <option value="10">Within 10 km</option>
+                    </select>
+                </div>
+
+                <!-- Crowd Level Filter -->
+                <div class="filter-group">
+                    <label><i class="fas fa-users"></i> Crowd Level</label>
+                    <select id="crowdFilter">
+                        <option value="all">Any Crowd</option>
+                        <option value="not-busy">Not Busy (< 50%)</option>
+                        <option value="moderate">Moderately Busy (50-75%)</option>
+                        <option value="busy">Very Busy (> 75%)</option>
+                    </select>
+                </div>
+
+                <!-- Dining Discount Filter -->
+                <div class="filter-group">
+                    <label><i class="fas fa-tag"></i> Dining Discounts</label>
+                    <select id="discountFilter">
+                        <option value="all">All Restaurants</option>
+                        <option value="true">With Discounts Only</option>
+                        <option value="swiggy-dineout">Swiggy Dineout</option>
+                        <option value="zomato-gold">Zomato Gold</option>
+                    </select>
+                </div>
+
+                <!-- Delivery Filter -->
+                <div class="filter-group">
+                    <label><i class="fas fa-motorcycle"></i> Delivery</label>
+                    <select id="deliveryFilter">
+                        <option value="all">All Options</option>
+                        <option value="swiggy">Swiggy Available</option>
+                        <option value="zomato">Zomato Available</option>
+                        <option value="both">Both Available</option>
+                    </select>
+                </div>
+
+                <!-- Open Now Filter -->
+                <div class="filter-group filter-checkbox">
+                    <label>
+                        <input type="checkbox" id="openNowFilter">
+                        <span><i class="fas fa-clock"></i> Open Now</span>
+                    </label>
+                </div>
+
+                <!-- Bar Available Filter -->
+                <div class="filter-group filter-checkbox">
+                    <label>
+                        <input type="checkbox" id="barFilter">
+                        <span><i class="fas fa-glass-martini"></i> Bar Available</span>
+                    </label>
+                </div>
+
+                <!-- Outdoor Seating Filter -->
+                <div class="filter-group filter-checkbox">
+                    <label>
+                        <input type="checkbox" id="outdoorFilter">
+                        <span><i class="fas fa-tree"></i> Outdoor Seating</span>
+                    </label>
+                </div>
+
+                <!-- Live Music Filter -->
+                <div class="filter-group filter-checkbox">
+                    <label>
+                        <input type="checkbox" id="musicFilter">
+                        <span><i class="fas fa-music"></i> Live Music</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button id="applyFilters" class="btn-primary"><i class="fas fa-check"></i> Apply Filters</button>
+                <button id="clearFilters" class="btn-secondary"><i class="fas fa-redo"></i> Clear All</button>
+            </div>
+
+            <div class="results-count">
+                <span id="resultsCount">Showing 20 restaurants</span>
+            </div>
+        </div>
+
+        <!-- Sort Options -->
+        <div class="sort-section">
+            <label><i class="fas fa-sort"></i> Sort By:</label>
+            <select id="sortBy">
+                <option value="rating">Highest Rating</option>
+                <option value="distance">Nearest First</option>
+                <option value="crowd-low">Least Crowded</option>
+                <option value="crowd-high">Most Popular</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="reviews">Most Reviewed</option>
+            </select>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle">
+            <button id="listViewBtn" class="active"><i class="fas fa-list"></i> List View</button>
+            <button id="mapViewBtn"><i class="fas fa-map"></i> Map View</button>
+        </div>
+
+        <!-- Restaurant List -->
+        <div id="restaurantList" class="restaurant-list"></div>
+
+        <!-- Map View -->
+        <div id="mapContainer" class="map-container" style="display: none;">
+            <div id="map"></div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+        </div>
+    </div>
+
+    <!-- Restaurant Detail Modal -->
+    <div id="restaurantModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    
+    <!-- Leaflet MarkerCluster JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>
