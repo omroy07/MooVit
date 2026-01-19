@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madhya Pradesh Public Transportation Network</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>🚌 Madhya Pradesh Public Transportation</h1>
+        <p>Your Complete Travel Planning & Safety Guide</p>
+    </div>
+
+    <div class="container">
+        <!-- Interactive Route Map Section -->
+        <section class="map-section">
+            <h2>🗺️ Interactive Route Map</h2>
+            <p class="map-description">Hover over locations to view details. Click on cities to see complete information and addresses.</p>
+            <div class="map-container">
+                <div id="routeMap"></div>
+            </div>
+            <div class="map-controls">
+                <button class="map-btn" id="resetMapView">🔄 Reset View</button>
+                <button class="map-btn" id="showAllRoutes">📍 Show All Routes</button>
+                <button class="map-btn" id="clearRoutes">✖️ Clear Routes</button>
+            </div>
+        </section>
+
+        <!-- Transport Mode Selection -->
+        <section class="transport-mode-section">
+            <h2>🚦 Select Transportation Mode</h2>
+            <div class="transport-mode-grid">
+                <div class="mode-card" data-mode="bus">
+                    <div class="mode-icon">🚌</div>
+                    <h3>Bus Services</h3>
+                    <p>State & Private Buses</p>
+                    <span class="mode-badge">Available</span>
+                </div>
+                <div class="mode-card" data-mode="metro">
+                    <div class="mode-icon">🚇</div>
+                    <h3>Metro Rail</h3>
+                    <p>Bhopal & Indore</p>
+                    <span class="mode-badge">Operational</span>
+                </div>
+                <div class="mode-card active" data-mode="train">
+                    <div class="mode-icon">🚂</div>
+                    <h3>Train Services</h3>
+                    <p>Indian Railways</p>
+                    <span class="mode-badge">24/7</span>
+                </div>
+                <div class="mode-card" data-mode="auto">
+                    <div class="mode-icon">🛺</div>
+                    <h3>Auto Rickshaw</h3>
+                    <p>City Transport</p>
+                    <span class="mode-badge">Available</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Route Planning & Fare Calculator -->
+        <div class="content-grid">
+            <section class="section route-planning">
+                <h2>📋 Plan Your Journey</h2>
+                <div class="route-planner">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fromCity">From City</label>
+                            <select id="fromCity">
+                                <option value="">Select Origin</option>
+                                <option value="bhopal">Bhopal</option>
+                                <option value="indore">Indore</option>
+                                <option value="gwalior">Gwalior</option>
+                                <option value="jabalpur">Jabalpur</option>
+                                <option value="ujjain">Ujjain</option>
+                                <option value="sagar">Sagar</option>
+                                <option value="ratlam">Ratlam</option>
+                                <option value="dewas">Dewas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="toCity">To City</label>
+                            <select id="toCity">
+                                <option value="">Select Destination</option>
+                                <option value="bhopal">Bhopal</option>
+                                <option value="indore">Indore</option>
+                                <option value="gwalior">Gwalior</option>
+                                <option value="jabalpur">Jabalpur</option>
+                                <option value="ujjain">Ujjain</option>
+                                <option value="sagar">Sagar</option>
+                                <option value="ratlam">Ratlam</option>
+                                <option value="dewas">Dewas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="travelDate">Travel Date</label>
+                            <input type="date" id="travelDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="passengers">Passengers</label>
+                            <input type="number" id="passengers" min="1" max="10" value="1">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Preferred Transport Mode</label>
+                        <div class="transport-toggle">
+                            <button class="toggle-btn active" data-transport="bus">🚌 Bus</button>
+                            <button class="toggle-btn" data-transport="train">🚂 Train</button>
+                            <button class="toggle-btn" data-transport="metro">🚇 Metro</button>
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="searchRoutes">🔍 Search Routes & Calculate Fare</button>
+                    <div id="selectedRoute" class="selected-route hidden">
+                        Select a route to view details and pricing...
+                    </div>
+                </div>
+            </section>
+
+            <section class="section fare-info">
+                <h2>💰 Fare Information</h2>
+                <div id="fareDisplay" class="fare-display">
+                    <div class="fare-card">
+                        <h4>Bus Fares</h4>
+                        <ul class="fare-list">
+                            <li><span>Local (0-50 km)</span><span class="fare-price">₹20-80</span></li>
+                            <li><span>Regional (50-200 km)</span><span class="fare-price">₹100-350</span></li>
+                            <li><span>Long Distance (200+ km)</span><span class="fare-price">₹400-800</span></li>
+                        </ul>
+                    </div>
+                    <div class="fare-card">
+                        <h4>Train Fares</h4>
+                        <ul class="fare-list">
+                            <li><span>2nd Class</span><span class="fare-price">₹50-200</span></li>
+                            <li><span>Sleeper Class</span><span class="fare-price">₹150-450</span></li>
+                            <li><span>AC 3-Tier</span><span class="fare-price">₹300-900</span></li>
+                        </ul>
+                    </div>
+                    <div class="fare-card">
+                        <h4>Metro Fares</h4>
+                        <ul class="fare-list">
+                            <li><span>Single Journey</span><span class="fare-price">₹10-40</span></li>
+                            <li><span>Day Pass</span><span class="fare-price">₹100</span></li>
+                            <li><span>Smart Card</span><span class="fare-price">10% Off</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Schedules & Timings Section -->
+        <section class="schedules-section">
+            <h2>🕐 Schedules & Timings</h2>
+            <div class="schedule-tabs">
+                <button class="schedule-tab active" data-tab="bus">Bus Schedules</button>
+                <button class="schedule-tab" data-tab="train">Train Schedules</button>
+                <button class="schedule-tab" data-tab="metro">Metro Schedules</button>
+            </div>
+
+            <div class="schedule-content active" id="bus-schedule">
+                <div class="schedule-grid">
+                    <div class="schedule-card">
+                        <h3>🚌 Bhopal - Indore</h3>
+                        <div class="route-item" data-route="bus-1">
+                            <div class="route-header">MP State Transport - Express</div>
+                            <div class="route-details">
+                                ⏰ Departure: 05:30 AM | Arrival: 10:00 AM<br>
+                                🕐 Duration: 4.5 hours | Distance: 195 km<br>
+                                💺 Seats: AC Seater<br>
+                                <span class="price">₹350 per person</span>
+                            </div>
+                        </div>
+                        <div class="route-item" data-route="bus-2">
+                            <div class="route-header">Private Volvo - Luxury</div>
+                            <div class="route-details">
+                                ⏰ Departure: 07:00 AM | Arrival: 11:15 AM<br>
+                                🕐 Duration: 4 hours 15 min | Distance: 195 km<br>
+                                💺 Seats: AC Sleeper<br>
+                                <span class="price">₹550 per person</span>
+                            </div>
+                        </div>
+                        <div class="route-item" data-route="bus-3">
+                            <div class="route-header">Evening Service - Regular</div>
+                            <div class="route-details">
+                                ⏰ Departure: 03:30 PM | Arrival: 08:00 PM<br>
+                                🕐 Duration: 4.5 hours | Distance: 195 km<br>
+                                💺 Seats: Non-AC Seater<br>
+                                <span class="price">₹250 per person</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="schedule-card">
+                        <h3>🚌 Gwalior - Bhopal</h3>
+                        <div class="route-item" data-route="bus-4">
+                            <div class="route-header">MP Roadways - Super Express</div>
+                            <div class="route-details">
+                                ⏰ Departure: 06:00 AM | Arrival: 12:30 PM<br>
+                                🕐 Duration: 6.5 hours | Distance: 420 km<br>
+                                💺 Seats: AC Seater<br>
+                                <span class="price">₹650 per person</span>
+                            </div>
+                        </div>
+                        <div class="route-item" data-route="bus-5">
+                            <div class="route-header">Night Service - Sleeper</div>
+                            <div class="route-details">
+                                ⏰ Departure: 10:00 PM | Arrival: 05:00 AM<br>
+                                🕐 Duration: 7 hours | Distance: 420 km<br>
+                                💺 Seats: AC Sleeper<br>
+                                <span class="price">₹750 per person</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="schedule-content" id="train-schedule">
+                <div class="schedule-grid">
+                    <div class="schedule-card">
+                        <h3>🚂 Bhopal - Jabalpur</h3>
+                        <div class="route-item" data-route="train-1">
+                            <div class="route-header">Shatabdi Express #12061</div>
+                            <div class="route-details">
+                                ⏰ Departure: 06:25 AM | Arrival: 11:50 AM<br>
+                                🕐 Duration: 5 hours 25 min | Distance: 335 km<br>
+                                💺 Classes: AC Chair Car<br>
+                                <span class="price">₹820 (AC Chair)</span>
+                            </div>
+                        </div>
+                        <div class="route-item" data-route="train-2">
+                            <div class="route-header">Mahakoshal Express #11449</div>
+                            <div class="route-details">
+                                ⏰ Departure: 03:15 PM | Arrival: 10:20 PM<br>
+                                🕐 Duration: 7 hours 5 min | Distance: 335 km<br>
+                                💺 Classes: Sleeper, 3AC, 2AC<br>
+                                <span class="price">₹195 (SL) | ₹560 (3AC)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="schedule-card">
+                        <h3>🚂 Indore - Ujjain</h3>
+                        <div class="route-item" data-route="train-3">
+                            <div class="route-header">Indore-Ujjain Passenger #59395</div>
+                            <div class="route-details">
+                                ⏰ Departure: 07:00 AM | Arrival: 08:45 AM<br>
+                                🕐 Duration: 1 hour 45 min | Distance: 55 km<br>
+                                💺 Classes: General, 2nd Class<br>
+                                <span class="price">₹25 (General) | ₹40 (2nd Class)</span>
+                            </div>
+                        </div>
+                        <div class="route-item" data-route="train-4">
+                            <div class="route-header">Intercity Express #12919</div>
+                            <div class="route-details">
+                                ⏰ Departure: 02:30 PM | Arrival: 03:55 PM<br>
+                                🕐 Duration: 1 hour 25 min | Distance: 55 km<br>
+                                💺 Classes: AC Chair, 2nd Sitting<br>
+                                <span class="price">₹145 (AC Chair)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="schedule-content" id="metro-schedule">
+                <div class="schedule-grid">
+                    <div class="schedule-card">
+                        <h3>🚇 Bhopal Metro - Line 1</h3>
+                        <div class="metro-info">
+                            <p><strong>Route:</strong> Karond Circle - AIIMS</p>
+                            <p><strong>Operating Hours:</strong> 6:00 AM - 10:00 PM</p>
+                            <p><strong>Frequency:</strong> Every 8-12 minutes</p>
+                            <p><strong>Total Stations:</strong> 14 stations</p>
+                        </div>
+                        <div class="route-item">
+                            <div class="route-header">Peak Hours (7-10 AM, 5-8 PM)</div>
+                            <div class="route-details">
+                                🕐 Frequency: Every 8 minutes<br>
+                                ⚡ Travel Time: ~32 minutes (end-to-end)<br>
+                                <span class="price">₹10-30 per journey</span>
+                            </div>
+                        </div>
+                        <div class="route-item">
+                            <div class="route-header">Off-Peak Hours</div>
+                            <div class="route-details">
+                                🕐 Frequency: Every 12 minutes<br>
+                                ⚡ Travel Time: ~32 minutes (end-to-end)<br>
+                                <span class="price">₹10-30 per journey</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="schedule-card">
+                        <h3>🚇 Indore Metro - Line 1</h3>
+                        <div class="metro-info">
+                            <p><strong>Route:</strong> Rau - Rajendra Nagar</p>
+                            <p><strong>Operating Hours:</strong> 6:00 AM - 10:00 PM</p>
+                            <p><strong>Frequency:</strong> Every 10-15 minutes</p>
+                            <p><strong>Total Stations:</strong> 16 stations</p>
+                        </div>
+                        <div class="route-item">
+                            <div class="route-header">Peak Hours Service</div>
+                            <div class="route-details">
+                                🕐 Frequency: Every 10 minutes<br>
+                                ⚡ Travel Time: ~38 minutes (end-to-end)<br>
+                                <span class="price">₹10-40 per journey</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Safety Tools & Information -->
+        <section class="safety-section">
+            <h2>🛡️ Safety Tools & Information</h2>
+            <div class="safety-grid">
+                <div class="safety-card">
+                    <div class="safety-icon">🚨</div>
+                    <h3>Emergency SOS</h3>
+                    <p>Quick access to emergency services</p>
+                    <button class="safety-btn" id="sosButton">Activate SOS</button>
+                </div>
+                <div class="safety-card">
+                    <div class="safety-icon">📍</div>
+                    <h3>Live Location Sharing</h3>
+                    <p>Share your journey with family</p>
+                    <button class="safety-btn" id="shareLocation">Share Location</button>
+                </div>
+                <div class="safety-card">
+                    <div class="safety-icon">⭐</div>
+                    <h3>Route Safety Score</h3>
+                    <p>Real-time safety ratings</p>
+                    <div class="safety-score">
+                        <div class="score-display">8.5/10</div>
+                        <div class="score-label">High Safety</div>
+                    </div>
+                </div>
+                <div class="safety-card">
+                    <div class="safety-icon">📞</div>
+                    <h3>Quick Contact</h3>
+                    <p>Emergency helpline numbers</p>
+                    <button class="safety-btn" id="helplineBtn">View Helplines</button>
+                </div>
+            </div>
+
+            <div class="safety-tips">
+                <h3>🔰 Travel Safety Guidelines</h3>
+                <ul class="tips-list">
+                    <li>🎫 Always carry a valid ticket and ID proof</li>
+                    <li>👀 Keep your belongings secure and within sight</li>
+                    <li>📱 Keep your phone charged and emergency contacts handy</li>
+                    <li>🚪 Sit near exits or in well-lit areas during night travel</li>
+                    <li>👥 Avoid sharing personal information with strangers</li>
+                    <li>⏰ Arrive at stations/stops 15-20 minutes early</li>
+                    <li>🚰 Carry water and snacks for long journeys</li>
+                    <li>📋 Keep a copy of important documents</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Info Cards -->
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>🌐 Wide Network Coverage</h3>
+                <p>Comprehensive bus and train network connecting all major cities with frequent services and affordable fares.</p>
+            </div>
+            <div class="info-card">
+                <h3>🛡️ Safety First Approach</h3>
+                <p>Real-time safety scores based on passenger reviews, route conditions, and operator reliability to help you choose secure travel options.</p>
+            </div>
+            <div class="info-card">
+                <h3>💡 Smart Comparison Tools</h3>
+                <p>Compare prices, timings, and comfort levels across different transport modes to find the perfect journey for your needs.</p>
+            </div>
+        </div>
+
+        <!-- Emergency Contacts Section -->
+        <section class="emergency-section">
+            <h2>🚨 Emergency Contacts & Helplines</h2>
+            <div class="emergency-grid">
+                <div class="emergency-card">
+                    <h3>🚔 Police Services</h3>
+                    <p><strong>Dial:</strong> 100 (Toll Free)</p>
+                    <p><strong>Control Room:</strong> 0755-2770100</p>
+                    <p><strong>Women Helpline:</strong> 1090</p>
+                    <p><strong>Tourist Helpline:</strong> 1363</p>
+                </div>
+                <div class="emergency-card">
+                    <h3>🏥 Medical Emergency</h3>
+                    <p><strong>Ambulance:</strong> 108 (Free)</p>
+                    <p><strong>Medical Helpline:</strong> 104</p>
+                    <p><strong>Blood Bank:</strong> 1910</p>
+                    <p><strong>Disaster Response:</strong> 1070</p>
+                </div>
+                <div class="emergency-card">
+                    <h3>🚒 Fire & Safety</h3>
+                    <p><strong>Fire Emergency:</strong> 101</p>
+                    <p><strong>Bhopal Fire:</strong> 0755-2540101</p>
+                    <p><strong>Indore Fire:</strong> 0731-2520101</p>
+                    <p><strong>Gas Leak:</strong> 1906</p>
+                </div>
+                <div class="emergency-card">
+                    <h3>🚗 Travel & Transport</h3>
+                    <p><strong>Highway Patrol:</strong> 1033</p>
+                    <p><strong>Railway Helpline:</strong> 139</p>
+                    <p><strong>Road Accident:</strong> 1073</p>
+                    <p><strong>Travel Helpline:</strong> 1800-111-139</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
