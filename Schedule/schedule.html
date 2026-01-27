@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transportation Schedule & Booking System</title>
+    <link rel="stylesheet" href="schedule.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <h1>🚌 Transportation Schedule & Booking System</h1>
+            <p>Manage schedules, book trips, and explore Bhopal transport network</p>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Stats Overview -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h5>TOTAL TRIPS TODAY</h5>
+                    <p id="totalTrips">45</p>
+                    <span class="stat-trend">↑ 12% from yesterday</span>
+                </div>
+                <div class="stat-card">
+                    <h5>COMPLETED</h5>
+                    <p id="completedTrips">32</p>
+                    <span class="stat-trend success">↑ 8 trips</span>
+                </div>
+                <div class="stat-card">
+                    <h5>PENDING</h5>
+                    <p id="pendingTrips">10</p>
+                    <span class="stat-trend warning">3 departing soon</span>
+                </div>
+                <div class="stat-card">
+                    <h5>CANCELLED</h5>
+                    <p id="cancelledTrips">3</p>
+                    <span class="stat-trend danger">↓ 2 from yesterday</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Calendar Section with Pricing -->
+        <section class="calendar-section">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prevMonth" class="calendar-nav-btn"><i class="fas fa-chevron-left"></i></button>
+                    <h2 id="currentMonth">January 2026</h2>
+                    <button id="nextMonth" class="calendar-nav-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                
+                <!-- Route and Vehicle Type Selection for Calendar -->
+                <div class="calendar-filters">
+                    <div class="calendar-filter-group">
+                        <label><i class="fas fa-route"></i> Select Route:</label>
+                        <select id="calendarRouteSelect">
+                            <option value="">All Routes</option>
+                            <option value="Indore → Bhopal">Indore → Bhopal</option>
+                            <option value="Indore → Ujjain">Indore → Ujjain</option>
+                            <option value="Indore → Dewas">Indore → Dewas</option>
+                            <option value="Bhopal → Gwalior">Bhopal → Gwalior</option>
+                            <option value="Bhopal → Jabalpur">Bhopal → Jabalpur</option>
+                        </select>
+                    </div>
+                    <div class="calendar-filter-group">
+                        <label><i class="fas fa-bus"></i> Vehicle Type:</label>
+                        <select id="calendarVehicleSelect">
+                            <option value="">All Types</option>
+                            <option value="AC Bus">AC Bus</option>
+                            <option value="Non-AC Bus">Non-AC Bus</option>
+                            <option value="Luxury">Luxury Coach</option>
+                            <option value="Mini Bus">Mini Bus</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="calendar-days">
+                    <div class="day-label">Sun</div>
+                    <div class="day-label">Mon</div>
+                    <div class="day-label">Tue</div>
+                    <div class="day-label">Wed</div>
+                    <div class="day-label">Thu</div>
+                    <div class="day-label">Fri</div>
+                    <div class="day-label">Sat</div>
+                </div>
+                <div id="calendarGrid" class="calendar-grid">
+                    <!-- Calendar dates will be dynamically generated -->
+                </div>
+                <div class="calendar-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot today-dot"></span>
+                        <span>Today</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot selected-dot"></span>
+                        <span>Selected</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot available-dot"></span>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot limited-dot"></span>
+                        <span>Limited Seats</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot full-dot"></span>
+                        <span>Full</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search & Filter Section -->
+        <section class="filter-section">
+            <h2><i class="fas fa-filter"></i> Search & Filter Schedules</h2>
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="searchInput">
+                        <i class="fas fa-search"></i> Search
+                    </label>
+                    <input type="text" id="searchInput" placeholder="Search by Trip ID, Driver, Vehicle...">
+                </div>
+                <div class="filter-group">
+                    <label for="routeFilter">
+                        <i class="fas fa-route"></i> Route
+                    </label>
+                    <select id="routeFilter">
+                        <option value="">All Routes</option>
+                        <option value="Indore → Bhopal">Indore → Bhopal</option>
+                        <option value="Indore → Ujjain">Indore → Ujjain</option>
+                        <option value="Indore → Dewas">Indore → Dewas</option>
+                        <option value="Bhopal → Gwalior">Bhopal → Gwalior</option>
+                        <option value="Bhopal → Jabalpur">Bhopal → Jabalpur</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="statusFilter">
+                        <i class="fas fa-clipboard-check"></i> Status
+                    </label>
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="vehicleTypeFilter">
+                        <i class="fas fa-bus"></i> Vehicle Type
+                    </label>
+                    <select id="vehicleTypeFilter">
+                        <option value="">All Types</option>
+                        <option value="AC Bus">AC Bus</option>
+                        <option value="Non-AC Bus">Non-AC Bus</option>
+                        <option value="Luxury">Luxury Coach</option>
+                        <option value="Mini Bus">Mini Bus</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dateFilter">
+                        <i class="fas fa-calendar-alt"></i> Date
+                    </label>
+                    <input type="date" id="dateFilter">
+                </div>
+                <div class="filter-group">
+                    <button id="resetFilters" class="reset-btn">
+                        <i class="fas fa-redo"></i> Reset Filters
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Customer Booking Section -->
+        <section class="booking-section">
+            <h2><i class="fas fa-ticket-alt"></i> Book Your Trip</h2>
+            <div class="booking-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customerName">
+                            <i class="fas fa-user"></i> Full Name
+                        </label>
+                        <input type="text" id="customerName" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">
+                            <i class="fas fa-phone"></i> Phone Number
+                        </label>
+                        <input type="tel" id="customerPhone" placeholder="Enter phone number" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bookingRoute">
+                            <i class="fas fa-map-marked-alt"></i> Select Route
+                        </label>
+                        <select id="bookingRoute" required>
+                            <option value="">Choose Route</option>
+                            <option value="Indore → Bhopal">Indore → Bhopal (4.5 hrs)</option>
+                            <option value="Indore → Ujjain">Indore → Ujjain (1.5 hrs)</option>
+                            <option value="Indore → Dewas">Indore → Dewas (1 hr)</option>
+                            <option value="Bhopal → Gwalior">Bhopal → Gwalior (6 hrs)</option>
+                            <option value="Bhopal → Jabalpur">Bhopal → Jabalpur (5.5 hrs)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookingDate">
+                            <i class="fas fa-calendar"></i> Travel Date
+                        </label>
+                        <input type="date" id="bookingDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bookingTime">
+                            <i class="fas fa-clock"></i> Departure Time
+                        </label>
+                        <select id="bookingTime" required>
+                            <option value="">Select Time</option>
+                            <option value="06:00">06:00 AM</option>
+                            <option value="08:00">08:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="14:00">02:00 PM</option>
+                            <option value="16:00">04:00 PM</option>
+                            <option value="18:00">06:00 PM</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numPassengers">
+                            <i class="fas fa-users"></i> Passengers
+                        </label>
+                        <input type="number" id="numPassengers" min="1" max="10" value="1" required>
+                    </div>
+                </div>
+                <div class="fare-preview" id="farePreview" style="display: none;">
+                    <div class="fare-details">
+                        <h4>Fare Breakdown</h4>
+                        <p><strong>Base Fare:</strong> ₹<span id="baseFare">0</span></p>
+                        <p><strong>Passengers:</strong> <span id="farePassengers">1</span></p>
+                        <p class="total-fare"><strong>Total Fare:</strong> ₹<span id="totalFare">0</span></p>
+                    </div>
+                </div>
+                <button id="bookTripBtn" class="book-btn">
+                    <i class="fas fa-check-circle"></i> Confirm Booking
+                </button>
+            </div>
+        </section>
+
+        <!-- Bhopal City Map Section -->
+        <section class="map-section">
+            <h2><i class="fas fa-map"></i> Bhopal City Transportation Map</h2>
+            <p class="map-description">Explore public transport routes, bus stands, restaurants, and hotels in Bhopal. Hover over markers for details.</p>
+            <div class="map-container">
+                <div id="bhopalMap"></div>
+            </div>
+            <div class="map-legend-section">
+                <div class="map-legend-item">
+                    <i class="fas fa-bus" style="color: #4A90E2;"></i> Bus Stands
+                </div>
+                <div class="map-legend-item">
+                    <i class="fas fa-route" style="color: #8b5cf6;"></i> Transport Routes
+                </div>
+                <div class="map-legend-item">
+                    <i class="fas fa-utensils" style="color: #f59e0b;"></i> Restaurants
+                </div>
+                <div class="map-legend-item">
+                    <i class="fas fa-hotel" style="color: #10b981;"></i> Hotels
+                </div>
+            </div>
+        </section>
+
+        <!-- Schedule Table Section -->
+        <section class="schedule-table-section">
+            <h2><i class="fas fa-list"></i> Trip Schedules</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Trip ID</th>
+                            <th>Vehicle</th>
+                            <th>Driver</th>
+                            <th>Route</th>
+                            <th>Departure</th>
+                            <th>ETA</th>
+                            <th>Status</th>
+                            <th>Rating</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleTableBody">
+                        <!-- Table rows will be dynamically generated -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Chart Section -->
+        <section class="chart-section">
+            <h2><i class="fas fa-chart-line"></i> Weekly Trip Statistics</h2>
+            <div class="chart-container">
+                <canvas id="scheduleChart"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Rate This Trip</h3>
+            <div class="rating-container">
+                <div class="stars" id="ratingStars">
+                    <i class="far fa-star" data-rating="1"></i>
+                    <i class="far fa-star" data-rating="2"></i>
+                    <i class="far fa-star" data-rating="3"></i>
+                    <i class="far fa-star" data-rating="4"></i>
+                    <i class="far fa-star" data-rating="5"></i>
+                </div>
+                <p class="rating-text">Select your rating</p>
+            </div>
+            <textarea id="ratingComment" placeholder="Add your comments (optional)..." rows="4"></textarea>
+            <button id="submitRating" class="submit-rating-btn">Submit Rating</button>
+        </div>
+    </div>
+
+    <script src="schedule.js"></script>
+</body>
+</html>
