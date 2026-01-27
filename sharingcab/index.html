@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚕 Smart Cab Sharing - Bhopal Transport Network</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">🚕</span>
+                <span class="logo-text">SmartShare Cab</span>
+            </div>
+            <nav class="nav">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#book" class="nav-link">Book Ride</a>
+                <a href="#schedule" class="nav-link">My Rides</a>
+                <a href="#profile" class="nav-link">Profile</a>
+            </nav>
+            <div class="user-profile">
+                <span class="user-name">Welcome, User</span>
+                <div class="user-avatar">U</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Stats -->
+    <section class="dashboard-stats">
+        <div class="container">
+            <h1 class="page-title">🚌 Transportation Schedule & Booking System</h1>
+            <p class="page-subtitle">Manage schedules, book trips, and explore Bhopal transport network</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>TOTAL TRIPS TODAY</h3>
+                    <div class="stat-number">6</div>
+                    <span class="stat-badge up">↑ 12% from yesterday</span>
+                </div>
+                <div class="stat-card">
+                    <h3>COMPLETED</h3>
+                    <div class="stat-number">2</div>
+                    <span class="stat-badge neutral">↑ 8 trips</span>
+                </div>
+                <div class="stat-card">
+                    <h3>PENDING</h3>
+                    <div class="stat-number">2</div>
+                    <span class="stat-badge warning">⚡ 3 departing soon</span>
+                </div>
+                <div class="stat-card">
+                    <h3>CANCELLED</h3>
+                    <div class="stat-number">1</div>
+                    <span class="stat-badge down">↓ 2 from yesterday</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Booking Section -->
+    <section class="booking-section">
+        <div class="container">
+            <div class="booking-layout">
+                <!-- Left Side - Booking Form -->
+                <div class="booking-form-container">
+                    <h2 class="section-title">🎯 Smart Ride Matching</h2>
+                    
+                    <!-- Route Selection -->
+                    <div class="form-group">
+                        <label>📍 Pickup Location</label>
+                        <select id="pickupLocation" class="form-control">
+                            <option value="">Select pickup point</option>
+                            <option value="new-market">New Market, Bhopal</option>
+                            <option value="mp-nagar">MP Nagar, Bhopal</option>
+                            <option value="hoshangabad-road">Hoshangabad Road</option>
+                            <option value="bhopal-station">Bhopal Railway Station</option>
+                            <option value="aiims-bhopal">AIIMS Bhopal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📍 Drop Location</label>
+                        <select id="dropLocation" class="form-control">
+                            <option value="">Select drop point</option>
+                            <option value="indore-station">Indore Railway Station</option>
+                            <option value="vijay-nagar">Vijay Nagar, Indore</option>
+                            <option value="rajwada">Rajwada, Indore</option>
+                            <option value="mhow">Mhow</option>
+                            <option value="dhar">Dhar</option>
+                        </select>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>📅 Date</label>
+                            <input type="date" id="rideDate" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>🕐 Time</label>
+                            <input type="time" id="rideTime" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- Recurring Ride -->
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="recurringRide">
+                            <span>🔄 Recurring Ride (Daily commute)</span>
+                        </label>
+                        <div id="recurringOptions" class="recurring-options hidden">
+                            <select class="form-control">
+                                <option>Daily (Mon-Fri)</option>
+                                <option>Daily (All days)</option>
+                                <option>Weekends only</option>
+                                <option>Custom days</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Route Type Selection -->
+                    <div class="form-group">
+                        <label>🛣️ Route Preference</label>
+                        <div class="route-options">
+                            <button class="route-btn active" data-route="fastest">
+                                <span class="route-icon">⚡</span>
+                                <span>Fastest</span>
+                            </button>
+                            <button class="route-btn" data-route="cheapest">
+                                <span class="route-icon">💰</span>
+                                <span>Cheapest</span>
+                            </button>
+                            <button class="route-btn" data-route="safest">
+                                <span class="route-icon">🛡️</span>
+                                <span>Safest</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Detour Tolerance -->
+                    <div class="form-group">
+                        <label>⏱️ Detour Tolerance: <span id="detourValue">15</span> minutes</label>
+                        <input type="range" id="detourSlider" min="0" max="30" value="15" class="slider">
+                    </div>
+
+                    <!-- Preferences -->
+                    <div class="form-group">
+                        <label>👥 Ride Preferences</label>
+                        <div class="preference-grid">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="genderPref">
+                                <span>👩 Women-only preference</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="silentRide">
+                                <span>🤫 Silent ride</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="chatFriendly">
+                                <span>💬 Chat-friendly</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="luggageFriendly">
+                                <span>🧳 Luggage-friendly</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Friend Code -->
+                    <div class="form-group">
+                        <label>👥 Traveling with Friends?</label>
+                        <div class="friend-code-section">
+                            <button id="generateCodeBtn" class="btn-secondary">Generate Friend Code</button>
+                            <div id="friendCodeDisplay" class="friend-code-display hidden">
+                                <span>Your Code: <strong id="friendCode"></strong></span>
+                                <button class="btn-copy" onclick="copyFriendCode()">📋 Copy</button>
+                            </div>
+                            <input type="text" id="joinCode" class="form-control" placeholder="Enter friend's code to join">
+                        </div>
+                    </div>
+
+                    <!-- Seats -->
+                    <div class="form-group">
+                        <label>💺 Number of Seats</label>
+                        <select id="seatsRequired" class="form-control">
+                            <option value="1">1 Seat</option>
+                            <option value="2">2 Seats</option>
+                            <option value="3">3 Seats</option>
+                            <option value="4">4 Seats</option>
+                        </select>
+                    </div>
+
+                    <button class="btn-primary" onclick="findMatches()">🔍 Find Matching Rides</button>
+                </div>
+
+                <!-- Right Side - Map & Matches -->
+                <div class="map-matches-container">
+                    <!-- Interactive Map -->
+                    <div class="map-container">
+                        <h3 class="map-title">📍 Live Route Map</h3>
+                        <div id="routeMap" class="route-map">
+                            <svg viewBox="0 0 400 300" class="route-svg">
+                                <!-- Bhopal -->
+                                <circle cx="100" cy="150" r="8" fill="#4CAF50" class="city-marker"/>
+                                <text x="100" y="140" text-anchor="middle" class="city-label">Bhopal</text>
+                                
+                                <!-- Indore -->
+                                <circle cx="300" cy="150" r="8" fill="#2196F3" class="city-marker"/>
+                                <text x="300" y="140" text-anchor="middle" class="city-label">Indore</text>
+                                
+                                <!-- Route Line -->
+                                <path id="routePath" d="M 100 150 L 300 150" stroke="#ddd" stroke-width="3" fill="none" stroke-dasharray="5,5"/>
+                                
+                                <!-- Active Route (will be animated) -->
+                                <path id="activeRoute" d="M 100 150 L 300 150" stroke="#4CAF50" stroke-width="4" fill="none" opacity="0"/>
+                                
+                                <!-- Intermediate Points -->
+                                <circle cx="200" cy="150" r="5" fill="#FF9800" class="waypoint"/>
+                                <text x="200" y="140" text-anchor="middle" class="waypoint-label">Via NH-46</text>
+                            </svg>
+                            <div class="map-legend">
+                                <span><span class="legend-dot green"></span> Pickup</span>
+                                <span><span class="legend-dot blue"></span> Drop</span>
+                                <span><span class="legend-dot orange"></span> Waypoint</span>
+                            </div>
+                        </div>
+                        <div class="route-info">
+                            <div class="route-stat">
+                                <span class="route-label">Distance:</span>
+                                <span class="route-value" id="routeDistance">--</span>
+                            </div>
+                            <div class="route-stat">
+                                <span class="route-label">Duration:</span>
+                                <span class="route-value" id="routeDuration">--</span>
+                            </div>
+                            <div class="route-stat">
+                                <span class="route-label">Estimated Cost:</span>
+                                <span class="route-value" id="routeCost">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Matches -->
+                    <div class="matches-container" id="matchesContainer">
+                        <h3>🎯 Available Matches</h3>
+                        <p class="matches-subtitle">Select your ride preferences to see matches</p>
+                        <div id="matchesList" class="matches-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calendar Section -->
+    <section class="calendar-section">
+        <div class="container">
+            <h2 class="section-title">📅 My Scheduled Rides</h2>
+            
+            <div class="calendar-header">
+                <button class="calendar-nav-btn" onclick="changeMonth(-1)">‹</button>
+                <h3 id="calendarMonth">January 2026</h3>
+                <button class="calendar-nav-btn" onclick="changeMonth(1)">›</button>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid"></div>
+
+            <!-- Upcoming Rides List -->
+            <div class="upcoming-rides">
+                <h3>🚗 Upcoming Rides</h3>
+                <div id="upcomingRidesList" class="rides-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gender Preference Modal -->
+    <div id="genderModal" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ Gender Preference Alert</h3>
+            <p>No female passengers available for this ride. Would you like to proceed with a mixed-gender ride?</p>
+            <p class="modal-note">You can always cancel if you're not comfortable.</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeGenderModal()">Decline</button>
+                <button class="btn-primary" onclick="acceptMixedRide()">Accept</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ride Impact Modal -->
+    <div id="impactModal" class="modal">
+        <div class="modal-content">
+            <h3>📊 Cancellation Impact Preview</h3>
+            <div class="impact-details">
+                <div class="impact-item">
+                    <span class="impact-label">Affected Passengers:</span>
+                    <span class="impact-value" id="affectedPassengers">--</span>
+                </div>
+                <div class="impact-item">
+                    <span class="impact-label">Cost Change:</span>
+                    <span class="impact-value" id="costChange">--</span>
+                </div>
+                <div class="impact-item">
+                    <span class="impact-label">Time Change:</span>
+                    <span class="impact-value" id="timeChange">--</span>
+                </div>
+                <div class="impact-item">
+                    <span class="impact-label">Cancellation Fee:</span>
+                    <span class="impact-value red" id="cancelFee">--</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeImpactModal()">Keep Ride</button>
+                <button class="btn-danger" onclick="confirmCancellation()">Confirm Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
