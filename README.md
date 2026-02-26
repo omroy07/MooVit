@@ -17,7 +17,7 @@ The MooVit web interface is simple, accessible, and packed with functionality:
 - Shipment route scheduling and alert-based safety recommendations (BETA)
 - Safety awareness prompts for road signs, traffic zones, and conditions
 
-Try it now → [https://moo-vit.vercel.app/](https://moo-vit-ochre.vercel.app/)
+Try it now → https://moo-vit-ochre.vercel.app/
 
 ---
 
